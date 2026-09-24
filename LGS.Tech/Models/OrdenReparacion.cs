@@ -30,7 +30,6 @@ namespace LGS.Tech.Models
         // Navegación hacia Equipo
         public Equipo Equipo { get; set; } = null!;
 
-        public string? TecnicoId { get; set; }
 
         public ApplicationUser? Tecnico { get; set; }
 
