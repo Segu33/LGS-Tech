@@ -30,8 +30,9 @@ namespace LGS.Tech.Models
         // Navegación hacia Equipo
         public Equipo Equipo { get; set; } = null!;
 
-        // Más adelante:
-        // public ApplicationUser? Tecnico { get; set; }
+        public string? TecnicoId { get; set; }
+
+        public ApplicationUser? Tecnico { get; set; }
 
         public ICollection<ArchivoOrden> Archivos { get; set; }
         = new List<ArchivoOrden>();
