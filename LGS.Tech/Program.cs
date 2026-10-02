@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using LGS.Tech.Repositories;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration
@@ -27,6 +28,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
+
 
 builder.Services.AddControllersWithViews();
 
@@ -57,7 +60,11 @@ using (var scope = app.Services.CreateScope())
     // Usuario Administrador
     // -----------------------------
     string emailAdmin = "admin@lgstech.com";
-    string passwordAdmin = "Admin123!";
+
+    string passwordAdmin =
+        builder.Configuration["SeedUsers:AdminPassword"]
+        ?? throw new InvalidOperationException(
+            "No se configuró SeedUsers:AdminPassword.");
 
     var admin = await userManager.FindByEmailAsync(emailAdmin);
 
@@ -90,7 +97,11 @@ using (var scope = app.Services.CreateScope())
     // Usuario Técnico
     // -----------------------------
     string emailTecnico = "tecnico@lgstech.com";
-    string passwordTecnico = "Tecnico123!";
+
+    string passwordTecnico =
+        builder.Configuration["SeedUsers:TecnicoPassword"]
+        ?? throw new InvalidOperationException(
+            "No se configuró SeedUsers:TecnicoPassword.");
 
     var tecnico = await userManager.FindByEmailAsync(emailTecnico);
 

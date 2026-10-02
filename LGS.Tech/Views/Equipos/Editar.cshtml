@@ -1,0 +1,274 @@
+@model LGS.Tech.ViewModels.EquipoFormViewModel
+
+@{
+    ViewData["Title"] = "Editar equipo";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Editar equipo</h2>
+
+        <a asp-controller="Equipos"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <form asp-controller="Equipos"
+                  asp-action="Editar"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- CLIENTE -->
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Cliente
+                    </label>
+
+                    <input type="text"
+                           id="buscarCliente"
+                           class="form-control"
+                           value="@Model.ClienteNombre"
+                           placeholder="Buscar por nombre, apellido o documento..."
+                           autocomplete="off" />
+
+                    <input asp-for="ClienteId"
+                           type="hidden"
+                           id="clienteId" />
+
+                    <span asp-validation-for="ClienteId"
+                          class="text-danger">
+                    </span>
+
+                    <div id="resultadosClientes"
+                         class="list-group mt-2">
+                    </div>
+
+                    <div id="clienteSeleccionado"
+                         class="alert alert-success mt-2">
+                        Cliente seleccionado: @Model.ClienteNombre
+                    </div>
+
+                </div>
+
+                <!-- TIPO -->
+                <div class="mb-3">
+
+                    <label asp-for="Tipo"
+                           class="form-label">
+                        Tipo
+                    </label>
+
+                    <input asp-for="Tipo"
+                           class="form-control" />
+
+                    <span asp-validation-for="Tipo"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- MARCA -->
+                <div class="mb-3">
+
+                    <label asp-for="Marca"
+                           class="form-label">
+                        Marca
+                    </label>
+
+                    <input asp-for="Marca"
+                           class="form-control" />
+
+                    <span asp-validation-for="Marca"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- MODELO -->
+                <div class="mb-3">
+
+                    <label asp-for="Modelo"
+                           class="form-label">
+                        Modelo
+                    </label>
+
+                    <input asp-for="Modelo"
+                           class="form-control" />
+
+                    <span asp-validation-for="Modelo"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- NUMERO DE SERIE -->
+                <div class="mb-3">
+
+                    <label asp-for="NumeroSerie"
+                           class="form-label">
+                        Número de serie
+                    </label>
+
+                    <input asp-for="NumeroSerie"
+                           class="form-control" />
+
+                    <span asp-validation-for="NumeroSerie"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Guardar cambios
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const inputBuscarCliente =
+            document.getElementById("buscarCliente");
+
+        const resultadosClientes =
+            document.getElementById("resultadosClientes");
+
+        const clienteId =
+            document.getElementById("clienteId");
+
+        const clienteSeleccionado =
+            document.getElementById("clienteSeleccionado");
+
+        let temporizadorBusqueda;
+
+        inputBuscarCliente.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(temporizadorBusqueda);
+
+                const texto = this.value.trim();
+
+                resultadosClientes.innerHTML = "";
+
+                if (texto.length < 2) {
+                    return;
+                }
+
+                temporizadorBusqueda = setTimeout(
+                    () => buscarClientes(texto),
+                    300
+                );
+            }
+        );
+
+        async function buscarClientes(texto) {
+
+            try {
+
+                const respuesta = await fetch(
+                    `/Equipos/BuscarClientes?buscar=${encodeURIComponent(texto)}`
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "Error al buscar clientes."
+                    );
+                }
+
+                const clientes =
+                    await respuesta.json();
+
+                mostrarResultados(clientes);
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                resultadosClientes.innerHTML = `
+                    <div class="list-group-item text-danger">
+                        Ocurrió un error al buscar clientes.
+                    </div>
+                `;
+            }
+        }
+
+        function mostrarResultados(clientes) {
+
+            resultadosClientes.innerHTML = "";
+
+            if (clientes.length === 0) {
+
+                resultadosClientes.innerHTML = `
+                    <div class="list-group-item">
+                        No se encontraron clientes.
+                    </div>
+                `;
+
+                return;
+            }
+
+            clientes.forEach(cliente => {
+
+                const boton =
+                    document.createElement("button");
+
+                boton.type = "button";
+
+                boton.className =
+                    "list-group-item list-group-item-action";
+
+                boton.textContent =
+                    `${cliente.nombre} ${cliente.apellido} - DNI: ${cliente.documento}`;
+
+                boton.addEventListener(
+                    "click",
+                    () => seleccionarCliente(cliente)
+                );
+
+                resultadosClientes.appendChild(boton);
+            });
+        }
+
+        function seleccionarCliente(cliente) {
+
+            clienteId.value = cliente.id;
+
+            inputBuscarCliente.value =
+                `${cliente.nombre} ${cliente.apellido}`;
+
+            resultadosClientes.innerHTML = "";
+
+            clienteSeleccionado.textContent =
+                `Cliente seleccionado: ${cliente.nombre} ${cliente.apellido} - DNI: ${cliente.documento}`;
+        }
+
+    </script>
+}
