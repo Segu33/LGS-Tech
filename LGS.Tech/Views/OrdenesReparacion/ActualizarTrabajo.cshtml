@@ -1,0 +1,113 @@
+@using LGS.Tech.Models
+@model LGS.Tech.ViewModels.OrdenTecnicoViewModel
+
+@{
+    ViewData["Title"] = $"Actualizar orden #{Model.Id}";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2>Actualizar orden #@Model.Id</h2>
+
+        <a asp-controller="OrdenesReparacion"
+           asp-action="Detalle"
+           asp-route-id="@Model.Id"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card">
+
+        <div class="card-header">
+            <strong>Trabajo técnico</strong>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="OrdenesReparacion"
+                  asp-action="ActualizarTrabajo"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- DIAGNOSTICO -->
+                <div class="mb-3">
+
+                    <label asp-for="Diagnostico"
+                           class="form-label">
+                        Diagnóstico
+                    </label>
+
+                    <textarea asp-for="Diagnostico"
+                              class="form-control"
+                              rows="5"
+                              placeholder="Detalle del diagnóstico y trabajo realizado...">
+                    </textarea>
+
+                    <span asp-validation-for="Diagnostico"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- ESTADO -->
+                <div class="mb-3">
+
+                    <label asp-for="Estado"
+                           class="form-label">
+                        Estado
+                    </label>
+
+                    <select asp-for="Estado"
+                            asp-items="Html.GetEnumSelectList<EstadoOrden>()"
+                            class="form-select">
+                    </select>
+
+                    <span asp-validation-for="Estado"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="alert alert-info">
+                    La fecha de finalización se asignará automáticamente
+                    cuando la orden pase a Reparado o Entregado.
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Guardar actualización
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

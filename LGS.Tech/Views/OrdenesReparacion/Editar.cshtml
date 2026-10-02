@@ -1,0 +1,556 @@
+@using LGS.Tech.Models
+@model LGS.Tech.ViewModels.OrdenReparacionFormViewModel
+
+@{
+    ViewData["Title"] = $"Editar orden #{Model.Id}";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2>Editar orden #@Model.Id</h2>
+
+        <a asp-controller="OrdenesReparacion"
+           asp-action="Detalle"
+           asp-route-id="@Model.Id"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <form asp-controller="OrdenesReparacion"
+                  asp-action="Editar"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- EQUIPO -->
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Equipo
+                    </label>
+
+                    <input type="text"
+                           id="buscarEquipo"
+                           class="form-control"
+                           value="@Model.EquipoDescripcion"
+                           placeholder="Buscar por cliente, marca, modelo o número de serie..."
+                           autocomplete="off" />
+
+                    <input asp-for="EquipoId"
+                           type="hidden"
+                           id="equipoId" />
+
+                    <input asp-for="EquipoDescripcion"
+                           type="hidden"
+                           id="equipoDescripcion" />
+
+                    <span asp-validation-for="EquipoId"
+                          class="text-danger">
+                    </span>
+
+                    <div id="resultadosEquipos"
+                         class="list-group mt-2">
+                    </div>
+
+                    <div id="equipoSeleccionado"
+                         class="alert alert-success mt-2">
+
+                        Equipo seleccionado:
+                        @Model.EquipoDescripcion
+
+                    </div>
+
+                </div>
+
+                <!-- TECNICO -->
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Técnico
+                    </label>
+
+                    <input type="text"
+                           id="buscarTecnico"
+                           class="form-control"
+                           value="@Model.TecnicoNombre"
+                           placeholder="Buscar técnico por nombre, apellido o correo..."
+                           autocomplete="off" />
+
+                    <input asp-for="TecnicoId"
+                           type="hidden"
+                           id="tecnicoId" />
+
+                    <input asp-for="TecnicoNombre"
+                           type="hidden"
+                           id="tecnicoNombre" />
+
+                    <div id="resultadosTecnicos"
+                         class="list-group mt-2">
+                    </div>
+
+                    <div id="tecnicoSeleccionado"
+                         class="alert alert-success mt-2 @(
+                            string.IsNullOrWhiteSpace(Model.TecnicoId)
+                                ? "d-none"
+                                : "")">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.TecnicoId))
+                        {
+                            <span>
+                                Técnico seleccionado:
+                                @Model.TecnicoNombre
+                            </span>
+                        }
+
+                    </div>
+
+                    <small class="text-muted">
+                        Puede dejarse sin técnico asignado.
+                    </small>
+
+                    <div class="mt-2">
+
+                        <button type="button"
+                                id="quitarTecnico"
+                                class="btn btn-sm btn-outline-secondary">
+                            Dejar sin técnico
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- PROBLEMA -->
+                <div class="mb-3">
+
+                    <label asp-for="Problema"
+                           class="form-label">
+                        Problema informado
+                    </label>
+
+                    <textarea asp-for="Problema"
+                              class="form-control"
+                              rows="3">
+                    </textarea>
+
+                    <span asp-validation-for="Problema"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- DIAGNOSTICO -->
+                <div class="mb-3">
+
+                    <label asp-for="Diagnostico"
+                           class="form-label">
+                        Diagnóstico
+                    </label>
+
+                    <textarea asp-for="Diagnostico"
+                              class="form-control"
+                              rows="3">
+                    </textarea>
+
+                    <span asp-validation-for="Diagnostico"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- ESTADO -->
+                <div class="mb-3">
+
+                    <label asp-for="Estado"
+                           class="form-label">
+                        Estado
+                    </label>
+
+                    <select asp-for="Estado"
+                            asp-items="Html.GetEnumSelectList<EstadoOrden>()"
+                            class="form-select">
+                    </select>
+
+                    <span asp-validation-for="Estado"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- COSTO -->
+                <div class="mb-3">
+
+                    <label asp-for="CostoEstimado"
+                           class="form-label">
+                        Costo estimado
+                    </label>
+
+                    <input asp-for="CostoEstimado"
+                           type="number"
+                           step="0.01"
+                           min="0"
+                           class="form-control" />
+
+                    <span asp-validation-for="CostoEstimado"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- FECHA FINALIZACION -->
+                <div class="mb-3">
+
+                    <label asp-for="FechaFinalizacion"
+                           class="form-label">
+                        Fecha de finalización
+                    </label>
+
+                    <input asp-for="FechaFinalizacion"
+                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="FechaFinalizacion"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Guardar cambios
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        // =================================================
+        // EQUIPO
+        // =================================================
+
+        const buscarEquipo =
+            document.getElementById("buscarEquipo");
+
+        const equipoId =
+            document.getElementById("equipoId");
+
+        const equipoDescripcion =
+            document.getElementById("equipoDescripcion");
+
+        const resultadosEquipos =
+            document.getElementById("resultadosEquipos");
+
+        const equipoSeleccionado =
+            document.getElementById("equipoSeleccionado");
+
+        let temporizadorEquipo;
+
+        buscarEquipo.addEventListener("input", function () {
+
+            clearTimeout(temporizadorEquipo);
+
+            const texto = this.value.trim();
+
+            resultadosEquipos.innerHTML = "";
+
+            if (texto.length < 2) {
+                return;
+            }
+
+            temporizadorEquipo = setTimeout(
+                () => buscarEquipos(texto),
+                300
+            );
+        });
+
+
+        async function buscarEquipos(texto) {
+
+            try {
+
+                const respuesta = await fetch(
+                    `/OrdenesReparacion/BuscarEquipos?buscar=${encodeURIComponent(texto)}`
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "Error al buscar equipos."
+                    );
+                }
+
+                const equipos =
+                    await respuesta.json();
+
+                mostrarEquipos(equipos);
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                resultadosEquipos.innerHTML = `
+                    <div class="list-group-item text-danger">
+                        Ocurrió un error al buscar equipos.
+                    </div>
+                `;
+            }
+        }
+
+
+        function mostrarEquipos(equipos) {
+
+            resultadosEquipos.innerHTML = "";
+
+            if (equipos.length === 0) {
+
+                resultadosEquipos.innerHTML = `
+                    <div class="list-group-item">
+                        No se encontraron equipos.
+                    </div>
+                `;
+
+                return;
+            }
+
+            equipos.forEach(equipo => {
+
+                const boton =
+                    document.createElement("button");
+
+                boton.type = "button";
+
+                boton.className =
+                    "list-group-item list-group-item-action";
+
+                const serie =
+                    equipo.numeroSerie
+                        ? ` - Serie: ${equipo.numeroSerie}`
+                        : "";
+
+                boton.textContent =
+                    `${equipo.marca} ${equipo.modelo} - ${equipo.tipo} - Cliente: ${equipo.cliente}${serie}`;
+
+                boton.addEventListener(
+                    "click",
+                    () => seleccionarEquipo(equipo)
+                );
+
+                resultadosEquipos.appendChild(boton);
+            });
+        }
+
+
+        function seleccionarEquipo(equipo) {
+
+            const descripcion =
+                `${equipo.marca} ${equipo.modelo} - ${equipo.tipo} - Cliente: ${equipo.cliente}`;
+
+            equipoId.value =
+                equipo.id;
+
+            equipoDescripcion.value =
+                descripcion;
+
+            buscarEquipo.value =
+                descripcion;
+
+            resultadosEquipos.innerHTML = "";
+
+            equipoSeleccionado.textContent =
+                `Equipo seleccionado: ${descripcion}`;
+
+            equipoSeleccionado.classList.remove(
+                "d-none"
+            );
+        }
+
+
+        // =================================================
+        // TECNICO
+        // =================================================
+
+        const buscarTecnico =
+            document.getElementById("buscarTecnico");
+
+        const tecnicoId =
+            document.getElementById("tecnicoId");
+
+        const tecnicoNombre =
+            document.getElementById("tecnicoNombre");
+
+        const resultadosTecnicos =
+            document.getElementById("resultadosTecnicos");
+
+        const tecnicoSeleccionado =
+            document.getElementById("tecnicoSeleccionado");
+
+        const quitarTecnico =
+            document.getElementById("quitarTecnico");
+
+        let temporizadorTecnico;
+
+
+        buscarTecnico.addEventListener("input", function () {
+
+            clearTimeout(temporizadorTecnico);
+
+            const texto = this.value.trim();
+
+            resultadosTecnicos.innerHTML = "";
+
+            if (texto.length < 2) {
+                return;
+            }
+
+            temporizadorTecnico = setTimeout(
+                () => buscarTecnicos(texto),
+                300
+            );
+        });
+
+
+        async function buscarTecnicos(texto) {
+
+            try {
+
+                const respuesta = await fetch(
+                    `/OrdenesReparacion/BuscarTecnicos?buscar=${encodeURIComponent(texto)}`
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "Error al buscar técnicos."
+                    );
+                }
+
+                const tecnicos =
+                    await respuesta.json();
+
+                mostrarTecnicos(tecnicos);
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                resultadosTecnicos.innerHTML = `
+                    <div class="list-group-item text-danger">
+                        Ocurrió un error al buscar técnicos.
+                    </div>
+                `;
+            }
+        }
+
+
+        function mostrarTecnicos(tecnicos) {
+
+            resultadosTecnicos.innerHTML = "";
+
+            if (tecnicos.length === 0) {
+
+                resultadosTecnicos.innerHTML = `
+                    <div class="list-group-item">
+                        No se encontraron técnicos.
+                    </div>
+                `;
+
+                return;
+            }
+
+            tecnicos.forEach(tecnico => {
+
+                const boton =
+                    document.createElement("button");
+
+                boton.type = "button";
+
+                boton.className =
+                    "list-group-item list-group-item-action";
+
+                boton.textContent =
+                    `${tecnico.nombre} ${tecnico.apellido} - ${tecnico.email ?? ""}`;
+
+                boton.addEventListener(
+                    "click",
+                    () => seleccionarTecnico(tecnico)
+                );
+
+                resultadosTecnicos.appendChild(boton);
+            });
+        }
+
+
+        function seleccionarTecnico(tecnico) {
+
+            const nombreCompleto =
+                `${tecnico.nombre} ${tecnico.apellido}`;
+
+            tecnicoId.value =
+                tecnico.id;
+
+            tecnicoNombre.value =
+                nombreCompleto;
+
+            buscarTecnico.value =
+                nombreCompleto;
+
+            resultadosTecnicos.innerHTML = "";
+
+            tecnicoSeleccionado.textContent =
+                `Técnico seleccionado: ${nombreCompleto}`;
+
+            tecnicoSeleccionado.classList.remove(
+                "d-none"
+            );
+        }
+
+
+        quitarTecnico.addEventListener(
+            "click",
+            function () {
+
+                tecnicoId.value = "";
+
+                tecnicoNombre.value = "";
+
+                buscarTecnico.value = "";
+
+                resultadosTecnicos.innerHTML = "";
+
+                tecnicoSeleccionado.textContent = "";
+
+                tecnicoSeleccionado.classList.add(
+                    "d-none"
+                );
+            }
+        );
+
+    </script>
+}

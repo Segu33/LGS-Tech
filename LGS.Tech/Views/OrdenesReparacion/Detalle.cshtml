@@ -1,0 +1,321 @@
+@using LGS.Tech.Models
+@model OrdenReparacion
+
+@{
+    ViewData["Title"] = $"Orden #{Model.Id}";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2>Orden de reparación #@Model.Id</h2>
+
+            <p class="text-muted mb-0">
+                Ingresada el
+                @Model.FechaIngreso.ToString("dd/MM/yyyy HH:mm")
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+
+            @if (User.IsInRole("Administrador"))
+            {
+                <a asp-controller="OrdenesReparacion" asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning">
+                    Editar
+                </a>
+            }
+
+            @if (User.IsInRole("Tecnico") &&
+                 !User.IsInRole("Administrador"))
+            {
+                <a asp-controller="OrdenesReparacion" asp-action="ActualizarTrabajo" asp-route-id="@Model.Id"
+                   class="btn btn-primary">
+                    Actualizar trabajo
+                </a>
+            }
+
+            <a asp-controller="OrdenesReparacion" asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+
+        </div>
+        
+    </div>
+
+    <!-- ESTADO -->
+    <div class="mb-3">
+
+        @switch (Model.Estado)
+        {
+            case EstadoOrden.Pendiente:
+
+                <span class="badge bg-warning text-dark fs-6">
+                    Pendiente
+                </span>
+
+                break;
+
+            case EstadoOrden.EnReparacion:
+
+                <span class="badge bg-primary fs-6">
+                    En reparación
+                </span>
+
+                break;
+
+            case EstadoOrden.Reparado:
+
+                <span class="badge bg-success fs-6">
+                    Reparado
+                </span>
+
+                break;
+
+            case EstadoOrden.Entregado:
+
+                <span class="badge bg-secondary fs-6">
+                    Entregado
+                </span>
+
+                break;
+        }
+
+    </div>
+
+    <div class="row">
+
+        <!-- CLIENTE -->
+        <div class="col-md-6 mb-3">
+
+            <div class="card h-100">
+
+                <div class="card-header">
+                    <strong>Cliente</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Nombre:</strong>
+                        @Model.Equipo.Cliente.Nombre
+                        @Model.Equipo.Cliente.Apellido
+                    </p>
+
+                    <p>
+                        <strong>Documento:</strong>
+                        @Model.Equipo.Cliente.Documento
+                    </p>
+
+                    <p>
+                        <strong>Teléfono:</strong>
+                        @Model.Equipo.Cliente.Telefono
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Correo:</strong>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Equipo.Cliente.Correo))
+                        {
+                            @Model.Equipo.Cliente.Correo
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                No registrado
+                            </span>
+                        }
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EQUIPO -->
+        <div class="col-md-6 mb-3">
+
+            <div class="card h-100">
+
+                <div class="card-header">
+                    <strong>Equipo</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Tipo:</strong>
+                        @Model.Equipo.Tipo
+                    </p>
+
+                    <p>
+                        <strong>Marca:</strong>
+                        @Model.Equipo.Marca
+                    </p>
+
+                    <p>
+                        <strong>Modelo:</strong>
+                        @Model.Equipo.Modelo
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>N° de serie:</strong>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Equipo.NumeroSerie))
+                        {
+                            @Model.Equipo.NumeroSerie
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                No registrado
+                            </span>
+                        }
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- REPARACION -->
+    <div class="card mb-3">
+
+        <div class="card-header">
+            <strong>Reparación</strong>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+                <strong>Problema informado</strong>
+
+                <p class="mt-1 mb-0">
+                    @Model.Problema
+                </p>
+            </div>
+
+            <hr />
+
+            <div class="mb-0">
+                <strong>Diagnóstico</strong>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Diagnostico))
+                {
+                    <p class="mt-1 mb-0">
+                        @Model.Diagnostico
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted mt-1 mb-0">
+                        Todavía no se registró un diagnóstico.
+                    </p>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <!-- TECNICO -->
+        <div class="col-md-6 mb-3">
+
+            <div class="card h-100">
+
+                <div class="card-header">
+                    <strong>Técnico</strong>
+                </div>
+
+                <div class="card-body">
+
+                    @if (Model.Tecnico != null)
+                    {
+                        <p>
+                            <strong>Nombre:</strong>
+                            @Model.Tecnico.Nombre
+                            @Model.Tecnico.Apellido
+                        </p>
+
+                        <p class="mb-0">
+                            <strong>Correo:</strong>
+                            @Model.Tecnico.Email
+                        </p>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+                            Sin técnico asignado.
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- DATOS -->
+        <div class="col-md-6 mb-3">
+
+            <div class="card h-100">
+
+                <div class="card-header">
+                    <strong>Datos de la orden</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Fecha de ingreso:</strong>
+                        @Model.FechaIngreso.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+
+                    <p>
+                        <strong>Fecha de finalización:</strong>
+
+                        @if (Model.FechaFinalizacion.HasValue)
+                        {
+                            @Model.FechaFinalizacion.Value.ToString("dd/MM/yyyy HH:mm")
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Sin finalizar
+                            </span>
+                        }
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Costo estimado:</strong>
+
+                        @if (Model.CostoEstimado.HasValue)
+                        {
+                            <span>
+                                $ @Model.CostoEstimado.Value.ToString("N2")
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                No definido
+                            </span>
+                        }
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
