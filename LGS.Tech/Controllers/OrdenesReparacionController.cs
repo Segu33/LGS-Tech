@@ -14,15 +14,21 @@ namespace LGS.Tech.Controllers
         private readonly IOrdenReparacionRepository _ordenRepository;
         private readonly IEquipoRepository _equipoRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPagoRepository _pagoRepository;
+        private readonly IArchivoOrdenRepository _archivoRepository;
 
         public OrdenesReparacionController(
             IOrdenReparacionRepository ordenRepository,
             IEquipoRepository equipoRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IPagoRepository pagoRepository,
+            IArchivoOrdenRepository archivoRepository)
         {
             _ordenRepository = ordenRepository;
             _equipoRepository = equipoRepository;
             _userManager = userManager;
+            _pagoRepository = pagoRepository;
+            _archivoRepository = archivoRepository;
         }
 
         // ==========================================
@@ -89,8 +95,8 @@ namespace LGS.Tech.Controllers
                 return NotFound();
             }
 
-            // Si el usuario es Técnico, solamente puede
-            // consultar las órdenes asignadas a él.
+            // Si es técnico, solo puede consultar
+            // órdenes asignadas a él.
             if (User.IsInRole("Tecnico") &&
                 !User.IsInRole("Administrador"))
             {
@@ -103,8 +109,34 @@ namespace LGS.Tech.Controllers
                 }
             }
 
+            var pagos = await _pagoRepository
+                .ObtenerPorOrdenAsync(id);
+
+            var totalPagado = await _pagoRepository
+                .ObtenerTotalPagadoAsync(id);
+
+            decimal? saldoEstimado = null;
+
+            if (orden.CostoEstimado.HasValue)
+            {
+                saldoEstimado =
+                    orden.CostoEstimado.Value - totalPagado;
+            }
+            var archivos = await _archivoRepository
+               .ObtenerPorOrdenAsync(id);
+
+
+            ViewBag.Pagos = pagos;
+            ViewBag.TotalPagado = totalPagado;
+            ViewBag.SaldoEstimado = saldoEstimado;
+            ViewBag.Archivos = archivos;
+
+
             return View(orden);
+
         }
+
+
         // ==========================================
         // EDITAR - GET
         // ==========================================

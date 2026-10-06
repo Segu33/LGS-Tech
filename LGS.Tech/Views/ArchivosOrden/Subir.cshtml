@@ -1,0 +1,132 @@
+@using LGS.Tech.Models
+@model LGS.Tech.ViewModels.ArchivoOrdenFormViewModel
+
+@{
+    ViewData["Title"] = "Subir archivo";
+
+    var orden = ViewBag.Orden as OrdenReparacion;
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2>Subir archivo</h2>
+
+            @if (orden != null)
+            {
+                <p class="text-muted mb-0">
+                    Orden de reparación #@orden.Id
+                </p>
+            }
+        </div>
+
+        @if (orden != null)
+        {
+            <a asp-controller="OrdenesReparacion"
+               asp-action="Detalle"
+               asp-route-id="@orden.Id"
+               class="btn btn-secondary">
+                Volver
+            </a>
+        }
+
+    </div>
+
+    @if (orden != null)
+    {
+        <div class="card mb-3">
+
+            <div class="card-body">
+
+                <p class="mb-1">
+                    <strong>Cliente:</strong>
+                    @orden.Equipo.Cliente.Nombre
+                    @orden.Equipo.Cliente.Apellido
+                </p>
+
+                <p class="mb-1">
+                    <strong>Equipo:</strong>
+                    @orden.Equipo.Marca
+                    @orden.Equipo.Modelo
+                </p>
+
+                <p class="mb-0">
+                    <strong>Problema:</strong>
+                    @orden.Problema
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="card">
+
+        <div class="card-header">
+            <strong>Archivo</strong>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="ArchivosOrden"
+                  asp-action="Subir"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="OrdenReparacionId"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Archivo"
+                           class="form-label">
+                        Seleccionar archivo
+                    </label>
+
+                    <input asp-for="Archivo"
+                           type="file"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.pdf" />
+
+                    <span asp-validation-for="Archivo"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="alert alert-info">
+
+                    <strong>Archivos permitidos:</strong>
+                    JPG, JPEG, PNG y PDF.
+
+                    <br />
+
+                    <strong>Tamaño máximo:</strong>
+                    10 MB.
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Subir archivo
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

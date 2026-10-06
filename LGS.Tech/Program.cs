@@ -32,6 +32,11 @@ builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
 builder.Services.AddScoped<IOrdenReparacionRepository, OrdenReparacionRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
+builder.Services.AddScoped<IOrdenReparacionRepository, OrdenReparacionRepository>();
+builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IArchivoOrdenRepository, ArchivoOrdenRepository>();
 
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,197 @@
+@using LGS.Tech.Models
+@model LGS.Tech.ViewModels.PagoFormViewModel
+
+@{
+    ViewData["Title"] = "Registrar pago";
+
+    var orden = ViewBag.Orden as OrdenReparacion;
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2>Registrar pago</h2>
+
+            @if (orden != null)
+            {
+                <p class="text-muted mb-0">
+                    Orden de reparación #@orden.Id
+                </p>
+            }
+        </div>
+
+        @if (orden != null)
+        {
+            <a asp-controller="OrdenesReparacion"
+               asp-action="Detalle"
+               asp-route-id="@orden.Id"
+               class="btn btn-secondary">
+                Volver
+            </a>
+        }
+
+    </div>
+
+    @if (orden != null)
+    {
+        <div class="card mb-3">
+
+            <div class="card-body">
+
+                <p class="mb-1">
+                    <strong>Cliente:</strong>
+                    @orden.Equipo.Cliente.Nombre
+                    @orden.Equipo.Cliente.Apellido
+                </p>
+
+                <p class="mb-1">
+                    <strong>Equipo:</strong>
+                    @orden.Equipo.Marca
+                    @orden.Equipo.Modelo
+                </p>
+
+                <p class="mb-0">
+                    <strong>Costo estimado:</strong>
+
+                    @if (orden.CostoEstimado.HasValue)
+                    {
+                        <span>
+                            $ @orden.CostoEstimado.Value.ToString("N2")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+                            No definido
+                        </span>
+                    }
+
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="card">
+
+        <div class="card-header">
+            <strong>Datos del pago</strong>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="Pagos"
+                  asp-action="Registrar"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="OrdenReparacionId"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- MONTO -->
+                <div class="mb-3">
+
+                    <label asp-for="Monto"
+                           class="form-label">
+                        Monto
+                    </label>
+
+                    <input asp-for="Monto"
+                           type="number"
+                           step="0.01"
+                           min="0.01"
+                           class="form-control"
+                           placeholder="Ej: 20000" />
+
+                    <span asp-validation-for="Monto"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- METODO -->
+                <div class="mb-3">
+
+                    <label asp-for="MetodoPago"
+                           class="form-label">
+                        Método de pago
+                    </label>
+
+                    <select asp-for="MetodoPago"
+                            asp-items="Html.GetEnumSelectList<MetodoPago>()"
+                            class="form-select">
+                    </select>
+
+                    <span asp-validation-for="MetodoPago"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- TIPO -->
+                <div class="mb-3">
+
+                    <label asp-for="TipoPago"
+                           class="form-label">
+                        Tipo de pago
+                    </label>
+
+                    <select asp-for="TipoPago"
+                            asp-items="Html.GetEnumSelectList<TipoPago>()"
+                            class="form-select">
+                    </select>
+
+                    <span asp-validation-for="TipoPago"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- OBSERVACION -->
+                <div class="mb-3">
+
+                    <label asp-for="Observacion"
+                           class="form-label">
+                        Observación
+                    </label>
+
+                    <textarea asp-for="Observacion"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Opcional">
+                    </textarea>
+
+                    <span asp-validation-for="Observacion"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="alert alert-info">
+                    La fecha y hora del pago se registrarán automáticamente.
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Registrar pago
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
