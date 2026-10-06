@@ -1,110 +1,288 @@
-﻿<!DOCTYPE html>
+﻿@using LGS.Tech.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ApplicationUser? usuarioActual = null;
+
+    if (User.Identity != null &&
+        User.Identity.IsAuthenticated)
+    {
+        usuarioActual = await UserManager.GetUserAsync(User);
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LGS.Tech</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/LGS.Tech.styles.css" asp-append-version="true" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - LGS.Tech
+    </title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/LGS.Tech.styles.css"
+          asp-append-version="true" />
+
 </head>
+
 <body>
+
     <header>
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LGS.Tech</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+
+                <!-- LOGO / NOMBRE -->
+                <a class="navbar-brand"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+                    LGS.Tech
+                </a>
+
+                <!-- BOTÓN RESPONSIVE -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
+                    <span class="navbar-toggler-icon">
+                    </span>
+
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    <!-- ===================================== -->
+                    <!-- NAVEGACIÓN IZQUIERDA -->
+                    <!-- ===================================== -->
+
                     <ul class="navbar-nav flex-grow-1">
-    <li class="nav-item">
-        <a class="nav-link text-dark"
-           asp-area=""
-           asp-controller="Home"
-           asp-action="Index">
-            Home
-        </a>
-    </li>
 
-    <li class="nav-item">
-        <a class="nav-link text-dark"
-           asp-area=""
-           asp-controller="Home"
-           asp-action="Privacy">
-            Privacy
-        </a>
-    </li>
-</ul>
+                        <!-- INICIO -->
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                                Inicio
+                            </a>
+                        </li>
 
-<ul class="navbar-nav ms-auto">
-    @if (User.Identity != null && User.Identity.IsAuthenticated)
-    {
-        <li class="nav-item d-flex align-items-center">
-            @if (User.IsInRole("Administrador"))
-            {
-                <span class="badge bg-primary me-2">
-                    Administrador
-                </span>
-            }
+                        @if (User.Identity != null &&
+                             User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Administrador"))
+                            {
+                                <!-- CLIENTES -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Clientes" asp-action="Index">
+                                        Clientes
+                                    </a>
+                                </li>
 
-            @if (User.IsInRole("Tecnico"))
-            {
-                <span class="badge bg-secondary me-2">
-                    Técnico
-                </span>
-            }
-        </li>
+                                <!-- EQUIPOS -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Equipos" asp-action="Index">
+                                        Equipos
+                                    </a>
+                                </li>
 
-        <li class="nav-item">
-            <span class="nav-link text-dark">
-                @User.Identity.Name
-            </span>
-        </li>
+                                <!-- ORDENES -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="OrdenesReparacion" asp-action="Index">
+                                        Órdenes
+                                    </a>
+                                </li>
 
-        <li class="nav-item">
-            <form asp-controller="Account"
-                  asp-action="Logout"
-                  method="post"
-                  class="d-inline">
+                                <!-- USUARIOS -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Index">
+                                        Usuarios
+                                    </a>
+                                </li>
+                            }
 
-                <button type="submit"
-                        class="nav-link btn btn-link text-dark">
-                    Cerrar sesión
-                </button>
-            </form>
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark"
-               asp-controller="Account"
-               asp-action="Login">
-                Iniciar sesión
-            </a>
-        </li>
-    }
-</ul>
+                            @if (User.IsInRole("Tecnico") &&
+                                 !User.IsInRole("Administrador"))
+                            {
+                                <!-- ORDENES DEL TECNICO -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="OrdenesReparacion" asp-action="Index">
+                                        Mis órdenes
+                                    </a>
+                                </li>
+                            }
+                        }
+
+                    </ul>
+
+                    <!-- ===================================== -->
+                    <!-- USUARIO / LOGIN -->
+                    <!-- ===================================== -->
+
+                    <ul class="navbar-nav ms-auto align-items-center">
+
+                        @if (User.Identity != null &&
+                             User.Identity.IsAuthenticated)
+                        {
+                            <!-- AVATAR -->
+                            @if (usuarioActual != null &&
+                                 !string.IsNullOrWhiteSpace(usuarioActual.Avatar))
+                            {
+                                <li class="nav-item d-flex align-items-center me-2">
+
+                                    <img src="@usuarioActual.Avatar"
+                                         alt="Avatar de @usuarioActual.Nombre"
+                                         class="rounded-circle border"
+                                         style="
+                                            width: 35px;
+                                            height: 35px;
+                                            object-fit: cover;
+                                         " />
+
+                                </li>
+                            }
+
+                            <!-- ROL -->
+                            <li class="nav-item d-flex align-items-center">
+
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <span class="badge bg-primary me-2">
+                                        Administrador
+                                    </span>
+                                }
+
+                                @if (User.IsInRole("Tecnico"))
+                                {
+                                    <span class="badge bg-secondary me-2">
+                                        Técnico
+                                    </span>
+                                }
+
+                            </li>
+
+                            <!-- EMAIL -->
+                            <li class="nav-item">
+
+                                <span class="nav-link text-dark">
+                                    @User.Identity.Name
+                                </span>
+
+                            </li>
+
+                            <!-- CERRAR SESIÓN -->
+                            <li class="nav-item">
+
+                                <form asp-controller="Account"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="nav-link btn btn-link text-dark">
+                                        Cerrar sesión
+                                    </button>
+
+                                </form>
+
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- INICIAR SESIÓN -->
+                            <li class="nav-item">
+
+                                <a class="nav-link text-dark"
+                                   asp-controller="Account"
+                                   asp-action="Login">
+                                    Iniciar sesión
+                                </a>
+
+                            </li>
+                        }
+
+                    </ul>
+
                 </div>
+
             </div>
+
         </nav>
+
     </header>
+
+    <!-- ===================================== -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ===================================== -->
+
     <div class="container">
-        <main role="main" class="pb-3">
+
+        <main role="main"
+              class="pb-3">
+
             @RenderBody()
+
         </main>
+
     </div>
 
+    <!-- ===================================== -->
+    <!-- FOOTER -->
+    <!-- ===================================== -->
+
     <footer class="border-top footer text-muted">
+
         <div class="container">
-            &copy; 2026 - LGS.Tech - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+
+            &copy; 2026 - LGS.Tech -
+
+            <a asp-area=""
+               asp-controller="Home"
+               asp-action="Privacy">
+                Privacy
+            </a>
+
         </div>
+
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- ===================================== -->
+    <!-- SCRIPTS -->
+    <!-- ===================================== -->
+
+    <script src="~/lib/jquery/dist/jquery.min.js">
+    </script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false
+    )
+
 </body>
 </html>

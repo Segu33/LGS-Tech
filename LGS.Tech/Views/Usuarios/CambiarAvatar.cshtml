@@ -1,0 +1,121 @@
+@model LGS.Tech.ViewModels.UsuarioAvatarViewModel
+
+@{
+    ViewData["Title"] = "Cambiar avatar";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2>Cambiar avatar</h2>
+
+            <p class="text-muted mb-0">
+                Usuario: @Model.NombreUsuario
+            </p>
+        </div>
+
+        <a asp-controller="Usuarios"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-body">
+
+            @if (!string.IsNullOrWhiteSpace(Model.AvatarActual))
+            {
+                <div class="mb-4">
+
+                    <p class="mb-2">
+                        <strong>Avatar actual</strong>
+                    </p>
+
+                    <img src="@Model.AvatarActual"
+                         alt="Avatar de @Model.NombreUsuario"
+                         class="rounded-circle border"
+                         style="width: 120px;
+                                height: 120px;
+                                object-fit: cover;" />
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Este usuario todavía no tiene avatar.
+                </div>
+            }
+
+            <form asp-controller="Usuarios"
+                  asp-action="CambiarAvatar"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+                <input asp-for="NombreUsuario"
+                       type="hidden" />
+
+                <input asp-for="AvatarActual"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Avatar"
+                           class="form-label">
+                        Seleccionar nueva imagen
+                    </label>
+
+                    <input asp-for="Avatar"
+                           type="file"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png" />
+
+                    <span asp-validation-for="Avatar"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="alert alert-info">
+
+                    <strong>Formatos permitidos:</strong>
+                    JPG, JPEG y PNG.
+
+                    <br />
+
+                    <strong>Tamaño máximo:</strong>
+                    5 MB.
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Guardar avatar
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
