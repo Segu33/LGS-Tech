@@ -482,8 +482,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-# Archivos privados subidos por usuarios
-PrivateFiles/
+# Archivos privados de órdenes
+LGS.Tech/PrivateFiles/
 
-# Carpeta antigua de uploads públicos
-wwwroot/uploads/
+# Archivos subidos por usuarios
+LGS.Tech/wwwroot/uploads/
