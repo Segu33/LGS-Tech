@@ -1,21 +1,23 @@
+using System.Text;
 using LGS.Tech.Data;
 using LGS.Tech.Models;
+using LGS.Tech.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using LGS.Tech.Repositories;
-
-
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ----------------------------------------------------
+// BASE DE DATOS
+// ----------------------------------------------------
 
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "No se encontró la cadena de conexión 'DefaultConnection'.");
 
-
-
-// Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         connectionString,
@@ -23,24 +25,78 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
+// ----------------------------------------------------
+// IDENTITY
+// ----------------------------------------------------
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
-builder.Services.AddScoped<IOrdenReparacionRepository, OrdenReparacionRepository>();
+// ----------------------------------------------------
+// JWT
+// ----------------------------------------------------
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "No se configuró Jwt:Key.");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException(
+        "No se configuró Jwt:Issuer.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException(
+        "No se configuró Jwt:Audience.");
+
+builder.Services
+    .AddAuthentication()
+    .AddJwtBearer(
+        JwtBearerDefaults.AuthenticationScheme,
+        options =>
+        {
+            options.TokenValidationParameters =
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtKey)
+                        ),
+
+                    ClockSkew = TimeSpan.Zero
+                };
+        }
+    );
+
+// ----------------------------------------------------
+// REPOSITORIOS
+// ----------------------------------------------------
+
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
 builder.Services.AddScoped<IOrdenReparacionRepository, OrdenReparacionRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<IArchivoOrdenRepository, ArchivoOrdenRepository>();
 
+// ----------------------------------------------------
+// MVC
+// ----------------------------------------------------
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// ----------------------------------------------------
+// CREACIÓN DE ROLES Y USUARIOS INICIALES
+// ----------------------------------------------------
 
 using (var scope = app.Services.CreateScope())
 {
@@ -53,19 +109,23 @@ using (var scope = app.Services.CreateScope())
     // -----------------------------
     // Crear roles
     // -----------------------------
+
     string[] roles = { "Administrador", "Tecnico" };
 
     foreach (var rol in roles)
     {
         if (!await roleManager.RoleExistsAsync(rol))
         {
-            await roleManager.CreateAsync(new IdentityRole(rol));
+            await roleManager.CreateAsync(
+                new IdentityRole(rol)
+            );
         }
     }
 
     // -----------------------------
     // Usuario Administrador
     // -----------------------------
+
     string emailAdmin = "admin@lgstech.com";
 
     string passwordAdmin =
@@ -103,6 +163,7 @@ using (var scope = app.Services.CreateScope())
     // -----------------------------
     // Usuario Técnico
     // -----------------------------
+
     string emailTecnico = "tecnico@lgstech.com";
 
     string passwordTecnico =
@@ -110,7 +171,9 @@ using (var scope = app.Services.CreateScope())
         ?? throw new InvalidOperationException(
             "No se configuró SeedUsers:TecnicoPassword.");
 
-    var tecnico = await userManager.FindByEmailAsync(emailTecnico);
+    var tecnico = await userManager.FindByEmailAsync(
+        emailTecnico
+    );
 
     if (tecnico == null)
     {
@@ -138,11 +201,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
+// ----------------------------------------------------
+// PIPELINE HTTP
+// ----------------------------------------------------
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -150,8 +215,15 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// IMPORTANTE:
+// primero autenticación, después autorización.
 app.UseAuthentication();
 app.UseAuthorization();
+
+// ----------------------------------------------------
+// RUTAS
+// ----------------------------------------------------
 
 app.MapControllerRoute(
     name: "default",
