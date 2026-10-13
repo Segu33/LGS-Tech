@@ -1,8 +1,186 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+
+    <!-- PRESENTACIÓN -->
+    <div class="text-center mb-5">
+
+        <img src="~/images/branding/logo-completo.png"
+             alt="LGS TECH"
+             class="img-fluid mb-3"
+             style="max-width: 250px;" />
+
+        <h1 class="display-6 fw-semibold">
+            Sistema de Gestión de Servicio Técnico
+        </h1>
+
+        <p class="text-muted fs-5">
+            Gestión de clientes, equipos y órdenes de reparación.
+        </p>
+
+    </div>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <!-- ADMINISTRADOR -->
+        @if (User.IsInRole("Administrador"))
+        {
+            <div class="mb-4">
+                <h2 class="h4">
+                    Panel de Administración
+                </h2>
+
+                <p class="text-muted">
+                    Accesos rápidos a las principales funciones del sistema.
+                </p>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- CLIENTES -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Clientes
+                            </h5>
+
+                            <p class="card-text text-muted">
+                                Alta, modificación, búsqueda y gestión de clientes.
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <a asp-controller="Clientes"
+                               asp-action="Index"
+                               class="btn btn-primary w-100">
+                                Ir a Clientes
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- EQUIPOS -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Equipos
+                            </h5>
+
+                            <p class="card-text text-muted">
+                                Administración de celulares y computadoras ingresadas.
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <a asp-controller="Equipos"
+                               asp-action="Index"
+                               class="btn btn-primary w-100">
+                                Ir a Equipos
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ÓRDENES -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Órdenes
+                            </h5>
+
+                            <p class="card-text text-muted">
+                                Gestión y seguimiento de las reparaciones.
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <a asp-controller="OrdenesReparacion"
+                               asp-action="Index"
+                               class="btn btn-primary w-100">
+                                Ir a Órdenes
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- USUARIOS -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Usuarios
+                            </h5>
+
+                            <p class="card-text text-muted">
+                                Gestión de administradores y técnicos.
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <a asp-controller="Usuarios"
+                               asp-action="Index"
+                               class="btn btn-primary w-100">
+                                Ir a Usuarios
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        }
+
+        <!-- TÉCNICO -->
+        @if (User.IsInRole("Tecnico") &&
+             !User.IsInRole("Administrador"))
+        {
+            <div class="text-center">
+
+                <h2 class="h4 mb-3">
+                    Panel del Técnico
+                </h2>
+
+                <p class="text-muted mb-4">
+                    Consultá y actualizá las órdenes de reparación que tenés asignadas.
+                </p>
+
+                <a asp-controller="OrdenesReparacion"
+                   asp-action="Index"
+                   class="btn btn-primary btn-lg">
+                    Ver mis órdenes
+                </a>
+
+            </div>
+        }
+    }
+    else
+    {
+        <!-- USUARIO NO AUTENTICADO -->
+        <div class="text-center">
+
+            <p class="fs-5 mb-4">
+                Iniciá sesión para acceder al sistema.
+            </p>
+
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="btn btn-primary btn-lg">
+                Iniciar sesión
+            </a>
+
+        </div>
+    }
+
 </div>

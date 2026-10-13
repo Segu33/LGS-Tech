@@ -23,7 +23,7 @@
           content="width=device-width, initial-scale=1.0" />
 
     <title>
-        @ViewData["Title"] - LGS.Tech
+        @ViewData["Title"] - LGS TECH
     </title>
 
     <link rel="stylesheet"
@@ -36,6 +36,10 @@
     <link rel="stylesheet"
           href="~/LGS.Tech.styles.css"
           asp-append-version="true" />
+
+    <link rel="icon"
+          type="image/png"
+          href="~/images/branding/logo-icon.png" />
 
 </head>
 
@@ -52,7 +56,8 @@
                    asp-area=""
                    asp-controller="Home"
                    asp-action="Index">
-                    LGS.Tech
+                    <img src="~/images/branding/logo-horizontal.png" alt="LGS TECH"
+                         style="width: 170px; height: auto;" />
                 </a>
 
                 <!-- BOTÓN RESPONSIVE -->
@@ -250,19 +255,21 @@
     <!-- ===================================== -->
 
     <footer class="border-top footer text-muted">
+        <div class="container text-center py-3">
 
-        <div class="container">
+            <div class="fw-semibold text-dark">
+                © 2026 LGS TECH
+            </div>
 
-            &copy; 2026 - LGS.Tech -
+            <div class="small">
+                Celulares · Computadoras
+            </div>
 
-            <a asp-area=""
-               asp-controller="Home"
-               asp-action="Privacy">
-                Privacy
-            </a>
+            <div class="small">
+                Sistema de Gestión de Servicio Técnico
+            </div>
 
         </div>
-
     </footer>
 
     <!-- ===================================== -->
