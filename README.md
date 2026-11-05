@@ -30,7 +30,7 @@ ASP.NET Core MVC y C# sobre .NET 8, Entity Framework Core con Pomelo, MySQL/Mari
 
 ### 1. Obtener el proyecto
 
-La versión de trabajo se encuentra en la rama `DevLuis`.
+La versión de trabajo se encuentra en la rama `Main`.
 
 ```powershell
 git clone --branch DevLuis https://github.com/Segu33/LGS-Tech.git
