@@ -1,4 +1,4 @@
-﻿@using LGS.Tech.Models
+@using LGS.Tech.Models
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 
@@ -190,6 +190,10 @@
                                     @User.Identity.Name
                                 </span>
 
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-route="MiAvatar">Mi avatar</a>
                             </li>
 
                             <!-- CERRAR SESIÓN -->

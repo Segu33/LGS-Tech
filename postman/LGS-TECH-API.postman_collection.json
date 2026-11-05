@@ -1,0 +1,344 @@
+{
+  "info": {
+    "name": "LGS TECH · API JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Pruebas de autenticación y autorización de LGS TECH. Iniciar la aplicación, completar las contraseñas de prueba en Variables y ejecutar las seis solicitudes en orden. Se requiere al menos un cliente cargado. Los logins guardan los tokens y el listado selecciona un ID existente. El archivo de entrega contiene contraseñas y tokens vacíos."
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5291",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@lgstech.com",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tecnicoEmail",
+      "value": "tecnico@lgstech.com",
+      "type": "string"
+    },
+    {
+      "key": "tecnicoPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tecnicoToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 · Login Administrador — 200",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{{loginBody}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"adminToken\", \"\");",
+              "const email = pm.variables.get(\"adminEmail\");",
+              "const password = pm.variables.get(\"adminPassword\");",
+              "if (!email || !password) {",
+              "    throw new Error(\"Completar adminEmail y adminPassword antes del login.\");",
+              "}",
+              "pm.variables.set(\"loginBody\", JSON.stringify({email, password}));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Token JWT y rol Administrador\", () => {",
+              "        pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+              "        pm.expect(data.usuario.roles).to.include(\"Administrador\");",
+              "    });",
+              "    if (typeof data.token === \"string\" && data.usuario.roles.includes(\"Administrador\")) {",
+              "        pm.collectionVariables.set(\"adminToken\", data.token);",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Login Técnico — 200",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{{loginBody}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"tecnicoToken\", \"\");",
+              "const email = pm.variables.get(\"tecnicoEmail\");",
+              "const password = pm.variables.get(\"tecnicoPassword\");",
+              "if (!email || !password) {",
+              "    throw new Error(\"Completar tecnicoEmail y tecnicoPassword antes del login.\");",
+              "}",
+              "pm.variables.set(\"loginBody\", JSON.stringify({email, password}));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Token JWT y rol Tecnico\", () => {",
+              "        pm.expect(data.token).to.be.a(\"string\").and.not.empty;",
+              "        pm.expect(data.usuario.roles).to.include(\"Tecnico\");",
+              "    });",
+              "    if (typeof data.token === \"string\" && data.usuario.roles.includes(\"Tecnico\")) {",
+              "        pm.collectionVariables.set(\"tecnicoToken\", data.token);",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Clientes sin token — 401",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 · Clientes con Técnico — 403",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tecnicoToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"tecnicoToken\")) {",
+              "    throw new Error(\"Ejecutar primero el login correspondiente para obtener tecnicoToken.\");",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 · Clientes con Administrador — 200",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes?pagina=1&cantidadPorPagina=10"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"adminToken\")) {",
+              "    throw new Error(\"Ejecutar primero el login correspondiente para obtener adminToken.\");",
+              "}",
+              "pm.collectionVariables.set(\"clienteId\", \"\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const data = pm.response.json();",
+              "    pm.test(\"Listado paginado\", () => {",
+              "        pm.expect(data.clientes).to.be.an(\"array\");",
+              "        pm.expect(data.pagina).to.equal(1);",
+              "        pm.expect(data.cantidadPorPagina).to.equal(10);",
+              "        pm.expect(data.clientes.length).to.be.at.most(10);",
+              "    });",
+              "    pm.test(\"Existe un cliente para la consulta por ID\", () => {",
+              "        pm.expect(data.clientes.length).to.be.above(0);",
+              "    });",
+              "    if (data.clientes.length > 0) {",
+              "        pm.collectionVariables.set(\"clienteId\", String(data.clientes[0].id));",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Cliente por ID con Administrador — 200",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/clientes/{{clienteId}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"adminToken\")) {",
+              "    throw new Error(\"Ejecutar primero el login correspondiente para obtener adminToken.\");",
+              "}",
+              "if (!pm.collectionVariables.get(\"clienteId\")) {",
+              "    throw new Error(\"Ejecutar el listado de Administrador con al menos un cliente cargado.\");",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "",
+              "if (pm.response.code === 200) {",
+              "    pm.test(\"El ID coincide con el cliente seleccionado\", () => {",
+              "        pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get(\"clienteId\")));",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

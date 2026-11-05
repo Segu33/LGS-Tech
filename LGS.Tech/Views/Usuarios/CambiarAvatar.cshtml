@@ -1,6 +1,7 @@
 @model LGS.Tech.ViewModels.UsuarioAvatarViewModel
 
 @{
+    var personal = !ViewContext.RouteData.Values.ContainsKey("id");
     ViewData["Title"] = "Cambiar avatar";
 }
 
@@ -16,7 +17,7 @@
             </p>
         </div>
 
-        <a asp-controller="Usuarios"
+        <a asp-controller="@(personal ? "Home" : "Usuarios")"
            asp-action="Index"
            class="btn btn-secondary">
             Volver
@@ -27,6 +28,11 @@
     <div class="card">
 
         <div class="card-body">
+
+            @if (TempData["Mensaje"] is string mensaje)
+            {
+                <div class="alert alert-success">@mensaje</div>
+            }
 
             @if (!string.IsNullOrWhiteSpace(Model.AvatarActual))
             {
@@ -52,22 +58,12 @@
                 </div>
             }
 
-            <form asp-controller="Usuarios"
-                  asp-action="CambiarAvatar"
-                  asp-route-id="@Model.Id"
+            <form asp-route="@(personal ? "MiAvatar" : "AvatarUsuario")"
+                  asp-route-id="@(personal ? null : Model.Id)"
                   method="post"
                   enctype="multipart/form-data">
 
                 @Html.AntiForgeryToken()
-
-                <input asp-for="Id"
-                       type="hidden" />
-
-                <input asp-for="NombreUsuario"
-                       type="hidden" />
-
-                <input asp-for="AvatarActual"
-                       type="hidden" />
 
                 <div asp-validation-summary="ModelOnly"
                      class="text-danger mb-3">
